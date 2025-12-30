@@ -5,13 +5,13 @@ LABEL author="athar" maintainer="athar@atharr.my.id"
 ENV DEBIAN_FRONTEND=noninteractive \
     USER=container \
     HOME=/home/container \
-    NODE_INSTALL_DIR=/home/container/node \
+    NVM_DIR=/home/container/.nvm \
     BUN_INSTALL=/usr/local/bun \
     PLAYWRIGHT_BROWSERS_PATH=/usr/local/share/playwright \
     GO_VERSION=1.24.0 \
     PYTHON_VERSION=3.13.0
 
-ENV PATH="$NODE_INSTALL_DIR/bin:$BUN_INSTALL/bin:/usr/local/go/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+ENV PATH="$BUN_INSTALL/bin:/usr/local/go/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         curl wget git zip unzip tar gzip bzip2 p7zip-full zstd \
@@ -61,7 +61,6 @@ RUN mkdir -p $PLAYWRIGHT_BROWSERS_PATH \
     && chmod -R 777 $PLAYWRIGHT_BROWSERS_PATH
 
 RUN useradd -m -d /home/container container
-RUN mkdir -p $NODE_INSTALL_DIR && chown -R container:container $NODE_INSTALL_DIR
 
 USER container
 WORKDIR /home/container

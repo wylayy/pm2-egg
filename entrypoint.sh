@@ -1,31 +1,55 @@
 #!/bin/bash
 
-NODE_DIR="/home/container/node"
 BUN_DIR="/usr/local/bun"
 GO_DIR="/usr/local/go"
+export NVM_DIR="/home/container/.nvm"
 export PLAYWRIGHT_BROWSERS_PATH="/usr/local/share/playwright"
 
-mkdir -p "$NODE_DIR"
-export PATH="$NODE_DIR/bin:$BUN_DIR/bin:$GO_DIR/bin:$PATH"
+# Install NVM if not present
+if [ ! -d "$NVM_DIR" ]; then
+    echo "Installing NVM..."
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+fi
 
-echo "export PATH=\"$NODE_DIR/bin:$BUN_DIR/bin:$GO_DIR/bin:\$PATH\"" > /home/container/.bashrc
-echo "export NODE_PATH=\"$NODE_DIR/lib/node_modules\"" >> /home/container/.bashrc
-echo "export PLAYWRIGHT_BROWSERS_PATH=\"$PLAYWRIGHT_BROWSERS_PATH\"" >> /home/container/.bashrc
+# Source NVM
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
+# Setup PATH and bashrc
+export PATH="$BUN_DIR/bin:$GO_DIR/bin:$PATH"
+
+cat > /home/container/.bashrc << 'EOF'
+export NVM_DIR="/home/container/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+export PATH="/usr/local/bun/bin:/usr/local/go/bin:$PATH"
+export PLAYWRIGHT_BROWSERS_PATH="/usr/local/share/playwright"
+EOF
+
+# Install Node.js via NVM
 if [ ! -z "${NODE_VERSION}" ]; then
-    [ -x "$NODE_DIR/bin/node" ] && CURRENT_VER=$("$NODE_DIR/bin/node" -v) || CURRENT_VER="none"
-    TARGET_VER=$(curl -s https://nodejs.org/dist/index.json | jq -r 'map(select(.version)) | .[] | select(.version | startswith("v'${NODE_VERSION}'")) | .version' 2>/dev/null | head -n 1)
+    CURRENT_VER=$(node -v 2>/dev/null || echo "none")
     
-    if [ -z "$TARGET_VER" ] || [ "$TARGET_VER" == "null" ]; then
-         if [[ "${NODE_VERSION}" == v* ]]; then TARGET_VER="${NODE_VERSION}"; else TARGET_VER="v${NODE_VERSION}.0.0"; fi
+    # Check if we need to install/switch version
+    if ! nvm ls "${NODE_VERSION}" > /dev/null 2>&1; then
+        echo "Installing Node.js ${NODE_VERSION} via NVM..."
+        nvm install "${NODE_VERSION}"
     fi
-
-    if [[ "$CURRENT_VER" != "$TARGET_VER" ]]; then
-        rm -rf $NODE_DIR/* && cd /tmp
-        curl -fL "https://nodejs.org/dist/${TARGET_VER}/node-${TARGET_VER}-linux-x64.tar.gz" -o node.tar.gz
-        tar -xf node.tar.gz --strip-components=1 -C "$NODE_DIR" && rm node.tar.gz
-        "$NODE_DIR/bin/npm" install -g npm@latest pm2 pnpm yarn playwright --loglevel=error
-        cd /home/container
+    
+    nvm use "${NODE_VERSION}"
+    
+    # Install global packages if pm2 is not present
+    if ! command -v pm2 &> /dev/null; then
+        echo "Installing global npm packages..."
+        npm install -g npm@latest pm2 pnpm yarn playwright --loglevel=error
+    fi
+elif [ -f ".nvmrc" ]; then
+    # Auto-detect version from .nvmrc if present
+    echo "Found .nvmrc, installing specified version..."
+    nvm install
+    nvm use
+    if ! command -v pm2 &> /dev/null; then
+        npm install -g npm@latest pm2 pnpm yarn playwright --loglevel=error
     fi
 fi
 
