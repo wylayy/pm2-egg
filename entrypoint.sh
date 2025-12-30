@@ -105,7 +105,7 @@ DISK_PERCENT=$(df / | awk 'NR==2 {print $5}' | tr -d '%')
 
 # Runtime versions
 NODE_VER=$(node -v 2>/dev/null || echo 'Not Installed')
-BUN_VER=$(bun -v 2>/dev/null && echo "v$(bun -v)" || echo 'Not Installed')
+BUN_VER=$(bun -v 2>/dev/null) && BUN_VER="v${BUN_VER}" || BUN_VER='Not Installed'
 GO_VER=$(go version 2>/dev/null | awk '{print $3}' | sed 's/go/v/' || echo 'Not Installed')
 PYTHON_VER=$(python3 --version 2>/dev/null | awk '{print "v"$2}' || echo 'Not Installed')
 PLAYWRIGHT_VER=$(playwright --version 2>/dev/null | head -n 1 || echo 'Not Installed')
