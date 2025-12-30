@@ -67,12 +67,7 @@ C_DIM='\033[2m'
 C_CYAN='\033[36m'
 C_GREEN='\033[32m'
 C_YELLOW='\033[33m'
-C_MAGENTA='\033[35m'
 C_WHITE='\033[97m'
-C_BLUE='\033[34m'
-
-# Box drawing
-BOX_TL='╭' BOX_TR='╮' BOX_BL='╰' BOX_BR='╯' BOX_H='─' BOX_V='│'
 
 # Helper function for progress bar
 progress_bar() {
@@ -81,15 +76,15 @@ progress_bar() {
     local filled=$((percent * width / 100))
     local empty=$((width - filled))
     local bar=""
-    for ((i=0; i<filled; i++)); do bar+="█"; done
-    for ((i=0; i<empty; i++)); do bar+="░"; done
+    for ((i=0; i<filled; i++)); do bar+="#"; done
+    for ((i=0; i<empty; i++)); do bar+="-"; done
     
     if [ $percent -lt 50 ]; then
-        echo -e "${C_GREEN}${bar}${C_RESET}"
+        echo -e "${C_GREEN}[${bar}]${C_RESET}"
     elif [ $percent -lt 80 ]; then
-        echo -e "${C_YELLOW}${bar}${C_RESET}"
+        echo -e "${C_YELLOW}[${bar}]${C_RESET}"
     else
-        echo -e "\033[31m${bar}${C_RESET}"
+        echo -e "\033[31m[${bar}]${C_RESET}"
     fi
 }
 
@@ -117,29 +112,35 @@ PLAYWRIGHT_VER=$(playwright --version 2>/dev/null | head -n 1 || echo 'Not Insta
 
 clear
 echo ""
-echo -e "${C_CYAN}${C_BOLD}  ╭──────────────────────────────────────────────────────────╮${C_RESET}"
-echo -e "${C_CYAN}${C_BOLD}  │${C_RESET}               ${C_WHITE}${C_BOLD}☁  ATHARS CLOUD SYSTEM  ☁${C_RESET}               ${C_CYAN}${C_BOLD}│${C_RESET}"
-echo -e "${C_CYAN}${C_BOLD}  ╰──────────────────────────────────────────────────────────╯${C_RESET}"
+echo -e "${C_CYAN}${C_BOLD}    ___  __  __ ___     ___"
+echo -e "   | _ \\|  \\/  |__ )   | __|__ _ __ _"
+echo -e "   |  _/| |\\/| |/ /    | _|/ _\` / _\` |"
+echo -e "   |_|  |_|  |_|/___|  |___\\__, \\__, |"
+echo -e "                          |___/|___/${C_RESET}"
 echo ""
-echo -e "${C_DIM}  ┌─────────────────────── ${C_WHITE}${C_BOLD}SYSTEM${C_RESET}${C_DIM} ───────────────────────┐${C_RESET}"
-echo -e "  ${C_DIM}│${C_RESET}  ${C_CYAN}󰍹${C_RESET}  Location    ${C_DIM}│${C_RESET}  ${C_WHITE}${LOCATION}${C_RESET}"
-echo -e "  ${C_DIM}│${C_RESET}  ${C_CYAN}${C_RESET}  OS          ${C_DIM}│${C_RESET}  ${C_WHITE}${OS_NAME}${C_RESET}"
-echo -e "  ${C_DIM}│${C_RESET}  ${C_CYAN}${C_RESET}  CPU         ${C_DIM}│${C_RESET}  ${C_WHITE}${CPU_MODEL} ${C_DIM}(${CPU_CORES} Cores)${C_RESET}"
-echo -e "  ${C_DIM}│${C_RESET}  ${C_CYAN}󰔟${C_RESET}  Uptime      ${C_DIM}│${C_RESET}  ${C_WHITE}${UPTIME_STR}${C_RESET}"
-echo -e "${C_DIM}  └──────────────────────────────────────────────────────────┘${C_RESET}"
+echo -e "${C_DIM}==============================================================${C_RESET}"
+echo -e "${C_WHITE}${C_BOLD}                         SYSTEM${C_RESET}"
+echo -e "${C_DIM}==============================================================${C_RESET}"
+echo -e "  ${C_CYAN}Location${C_RESET}    : ${C_WHITE}${LOCATION}${C_RESET}"
+echo -e "  ${C_CYAN}OS${C_RESET}          : ${C_WHITE}${OS_NAME}${C_RESET}"
+echo -e "  ${C_CYAN}CPU${C_RESET}         : ${C_WHITE}${CPU_MODEL} ${C_DIM}(${CPU_CORES} Cores)${C_RESET}"
+echo -e "  ${C_CYAN}Uptime${C_RESET}      : ${C_WHITE}${UPTIME_STR}${C_RESET}"
 echo ""
-echo -e "${C_DIM}  ┌───────────────────── ${C_WHITE}${C_BOLD}RESOURCES${C_RESET}${C_DIM} ──────────────────────┐${C_RESET}"
-echo -e "  ${C_DIM}│${C_RESET}  ${C_GREEN}${C_RESET}  RAM         ${C_DIM}│${C_RESET}  $(progress_bar $RAM_PERCENT)  ${C_WHITE}${RAM_USED}MB${C_DIM}/${RAM_TOTAL}MB${C_RESET}"
-echo -e "  ${C_DIM}│${C_RESET}  ${C_GREEN}󰋊${C_RESET}  Disk        ${C_DIM}│${C_RESET}  $(progress_bar $DISK_PERCENT)  ${C_WHITE}${DISK_USED}${C_DIM}/${DISK_TOTAL}${C_RESET}"
-echo -e "${C_DIM}  └──────────────────────────────────────────────────────────┘${C_RESET}"
+echo -e "${C_DIM}==============================================================${C_RESET}"
+echo -e "${C_WHITE}${C_BOLD}                        RESOURCES${C_RESET}"
+echo -e "${C_DIM}==============================================================${C_RESET}"
+echo -e "  ${C_CYAN}RAM${C_RESET}         : $(progress_bar $RAM_PERCENT) ${C_WHITE}${RAM_USED}MB${C_DIM}/${RAM_TOTAL}MB${C_RESET}"
+echo -e "  ${C_CYAN}Disk${C_RESET}        : $(progress_bar $DISK_PERCENT) ${C_WHITE}${DISK_USED}${C_DIM}/${DISK_TOTAL}${C_RESET}"
 echo ""
-echo -e "${C_DIM}  ┌───────────────────── ${C_WHITE}${C_BOLD}RUNTIMES${C_RESET}${C_DIM} ───────────────────────┐${C_RESET}"
-echo -e "  ${C_DIM}│${C_RESET}  ${C_GREEN}${C_RESET}  Node.js     ${C_DIM}│${C_RESET}  ${C_WHITE}${NODE_VER}${C_RESET}"
-echo -e "  ${C_DIM}│${C_RESET}  ${C_YELLOW}🥟${C_RESET} Bun         ${C_DIM}│${C_RESET}  ${C_WHITE}${BUN_VER}${C_RESET}"
-echo -e "  ${C_DIM}│${C_RESET}  ${C_CYAN}󰟓${C_RESET}  Go          ${C_DIM}│${C_RESET}  ${C_WHITE}${GO_VER}${C_RESET}"
-echo -e "  ${C_DIM}│${C_RESET}  ${C_BLUE}${C_RESET}  Python      ${C_DIM}│${C_RESET}  ${C_WHITE}${PYTHON_VER}${C_RESET}"
-echo -e "  ${C_DIM}│${C_RESET}  ${C_MAGENTA}🎭${C_RESET} Playwright  ${C_DIM}│${C_RESET}  ${C_WHITE}${PLAYWRIGHT_VER}${C_RESET}"
-echo -e "${C_DIM}  └──────────────────────────────────────────────────────────┘${C_RESET}"
+echo -e "${C_DIM}==============================================================${C_RESET}"
+echo -e "${C_WHITE}${C_BOLD}                        RUNTIMES${C_RESET}"
+echo -e "${C_DIM}==============================================================${C_RESET}"
+echo -e "  ${C_GREEN}Node.js${C_RESET}     : ${C_WHITE}${NODE_VER}${C_RESET}"
+echo -e "  ${C_YELLOW}Bun${C_RESET}         : ${C_WHITE}${BUN_VER}${C_RESET}"
+echo -e "  ${C_CYAN}Go${C_RESET}          : ${C_WHITE}${GO_VER}${C_RESET}"
+echo -e "  ${C_CYAN}Python${C_RESET}      : ${C_WHITE}${PYTHON_VER}${C_RESET}"
+echo -e "  ${C_CYAN}Playwright${C_RESET}  : ${C_WHITE}${PLAYWRIGHT_VER}${C_RESET}"
+echo -e "${C_DIM}==============================================================${C_RESET}"
 echo ""
 
 exec /bin/bash

@@ -1,0 +1,86 @@
+{
+    "_comment": "DO NOT EDIT: FILE GENERATED AUTOMATICALLY BY PTERODACTYL PANEL - PTERODACTYL.IO",
+    "meta": {
+        "version": "PTDL_v2",
+        "update_url": null
+    },
+    "exported_at": "2024-12-30T14:47:17+07:00",
+    "name": "PM2 - Egg",
+    "author": "admin@waykay.cloud",
+    "description": "A multi-runtime Docker image with Node.js (via NVM), Bun, Go, Python, and Playwright. Includes PM2 process manager and Cloudflare Tunnel support.",
+    "features": null,
+    "docker_images": {
+        "ghcr.io/wylayy/pm2-egg:latest": "ghcr.io/wylayy/pm2-egg:latest"
+    },
+    "file_denylist": [],
+    "startup": "{{STARTUP_CMD}}",
+    "config": {
+        "files": "{}",
+        "startup": "{\r\n    \"done\": \"PM2 - Egg\"\r\n}",
+        "logs": "{}",
+        "stop": "^C"
+    },
+    "scripts": {
+        "installation": {
+            "script": "#!/bin/bash\r\napt-get update\r\napt-get install -y curl git\r\n\r\ncd /mnt/server\r\n\r\nif [ \"${USER_UPLOAD}\" == \"false\" ] || [ \"${USER_UPLOAD}\" == \"0\" ]; then\r\n    if [ ! -z \"${GIT_REPO}\" ]; then\r\n        if [ -d \".git\" ]; then\r\n            git pull\r\n        else\r\n            git clone ${GIT_REPO} .\r\n        fi\r\n    fi\r\nfi\r\n\r\necho \"Installation complete!\"",
+            "container": "debian:bullseye-slim",
+            "entrypoint": "bash"
+        }
+    },
+    "variables": [
+        {
+            "name": "Startup Command",
+            "description": "The command to run when the container starts. Use 'bash' for interactive shell or specify your app command (e.g., 'pm2-runtime ecosystem.config.js').",
+            "env_variable": "STARTUP_CMD",
+            "default_value": "bash",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|max:500"
+        },
+        {
+            "name": "Node.js Version",
+            "description": "Node.js version to install via NVM (e.g., 20, 18, lts, latest). Leave empty to skip Node.js installation.",
+            "env_variable": "NODE_VERSION",
+            "default_value": "20",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "nullable|string|max:20"
+        },
+        {
+            "name": "Git Repository",
+            "description": "Git repository URL to clone during installation (optional). Example: https://github.com/user/repo.git",
+            "env_variable": "GIT_REPO",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "nullable|string|max:500"
+        },
+        {
+            "name": "User Upload",
+            "description": "Set to 'true' if you want to upload files manually instead of cloning from Git.",
+            "env_variable": "USER_UPLOAD",
+            "default_value": "false",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|in:true,false"
+        },
+        {
+            "name": "Enable Cloudflare Tunnel",
+            "description": "Enable Cloudflare Tunnel for secure external access. Requires CF_TOKEN to be set.",
+            "env_variable": "ENABLE_CF_TUNNEL",
+            "default_value": "false",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|in:true,false"
+        },
+        {
+            "name": "Cloudflare Tunnel Token",
+            "description": "Cloudflare Tunnel token from Zero Trust dashboard. Only used if ENABLE_CF_TUNNEL is true.",
+            "env_variable": "CF_TOKEN",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "nullable|string|max:500"
+        }
+    ]
+}
