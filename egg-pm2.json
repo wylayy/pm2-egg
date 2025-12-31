@@ -6,7 +6,7 @@
     },
     "exported_at": "2024-12-30T14:47:17+07:00",
     "name": "PM2 - Egg",
-    "author": "admin@waykay.cloud",
+    "author": "admin@waylay.cloud",
     "description": "A multi-runtime Docker image with Node.js (via NVM), Bun, Go, Python, and Playwright. Includes PM2 process manager and Cloudflare Tunnel support.",
     "features": null,
     "docker_images": {
